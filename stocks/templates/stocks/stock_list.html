@@ -1,15 +1,15 @@
-<!-- stocks/templates/stocks/stock_list.html -->
+<!-- templates/stocks/stock_list.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Stock List</title>
+    <title>Available Stocks</title>
 </head>
 <body>
-    <h1>Stock List</h1>
+    <h1>Available Stocks</h1>
     <ul>
         {% for stock in stocks %}
-            <li>{{ stock.name }} ({{ stock.symbol }}) - ${{ stock.price }}</li>
+            <li><a href="{% url 'stock_history' stock.symbol %}">{{ stock.symbol }}</a></li>
         {% endfor %}
     </ul>
 </body>
