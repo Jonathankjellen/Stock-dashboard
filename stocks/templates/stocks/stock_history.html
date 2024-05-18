@@ -6,6 +6,7 @@
     <title>Stock History for {{ symbol }}</title>
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/stock.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
     <style>
         body {
@@ -85,31 +86,45 @@
                 close: entry.close,
                 volume: entry.volume
             }));
-
             console.log("Processed stockData:", stockData);
+
             var root = am5.Root.new("chartdiv");
+            
+            // Set themes
             const myTheme = am5.Theme.new(root);
-                        
             myTheme.rule("Grid", ["scrollbar", "minor"]).setAll({
                 visible:false
             });
-            // Set themes
             root.setThemes([
                 am5themes_Animated.new(root),
                 myTheme
             ]);
 
-            // Create chart
-            var chart = root.container.children.push(am5xy.XYChart.new(root, {
-                layout: root.verticalLayout,
+            var stockChart = root.container.children.push(
+                am5stock.StockChart.new(root, {})
+            );
+            var mainPanel = stockChart.panels.push(am5stock.StockPanel.new(root, {
+                wheelY: "zoomX",
+                wheelX: "panX",
+                pinchZoomX: true,
                 panX: true,
                 panY: true,
-                wheelX: "panX",
-                wheelY: "zoomX",
-                pinchZoomX: true,
                 paddingTop: 40,
-                height: am5.percent(100)
             }));
+
+
+
+            // Create chart
+            // var chart = root.container.children.push(am5xy.XYChart.new(root, {
+            //     layout: root.verticalLayout,
+            //     panX: true,
+            //     panY: true,
+            //     wheelX: "panX",
+            //     wheelY: "zoomX",
+            //     pinchZoomX: true,
+            //     paddingTop: 40,
+            //     height: am5.percent(100)
+            // }));
 
             var xRenderer = am5xy.AxisRendererX.new(root, {
                 pan: "zoom",
@@ -120,7 +135,7 @@
                 maxPosition: 0.99
             });
 
-            var xAxis = chart.xAxes.push(am5xy.GaplessDateAxis.new(root, {
+            var xAxis = mainPanel.xAxes.push(am5xy.GaplessDateAxis.new(root, {
                 maxDeviation: 0.2,
                 baseInterval: { timeUnit: "day", count: 1 },
                 renderer: xRenderer,
@@ -134,7 +149,7 @@
                 centerY: am5.percent(100),
                 maxPosition: 0.98
             });
-            var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+            var yAxis = mainPanel.yAxes.push(am5xy.ValueAxis.new(root, {
                 renderer: yAxisRenderer,
                 height: am5.percent(70)
             }));
@@ -158,7 +173,7 @@
             }));
 
             var color = root.interfaceColors.get("background");
-            var candleSeries = chart.series.push(
+            var candleSeries = mainPanel.series.push(
                 am5xy.CandlestickSeries.new(root, {
                     fill: color,
                     clustered: false,
@@ -189,33 +204,12 @@
                     labelText: "{name}: {valueYField} {valueYChangePreviousPercent.formatNumber('[#00ff00]+#,###.##|[#ff0000]#,###.##|[#999999]0')}%"
                 }));
                 candleTooltip.get("background").set("fill", root.interfaceColors.get("background"));
-                var legend = chart.children.push(am5.Legend.new(root, {
+                var legend = mainPanel.children.push(am5.Legend.new(root, {
                 centerX: am5.percent(50),
                 x: am5.percent(50)
                 }));
-                legend.data.setAll(chart.series.values);
+                legend.data.setAll(mainPanel.series.values);
 
-
-            // var blockSeries = chart.series.push( 
-            //     am5xy.LineSeries.new(root, { 
-            //         name: "Series", 
-            //         xAxis: xAxis, 
-            //         yAxis: yAxis, 
-            //         valueYField: "close", 
-            //         valueXField: "date",
-            //         tooltip: am5.Tooltip.new(root, {labelText: "{valueY}"})
-            //     }) 
-            // );
-            // var blockSeries = chart.series.push( 
-            //     am5xy.ColumnSeries.new(root, { 
-            //         name: "Series", 
-            //         xAxis: xAxis, 
-            //         yAxis: yAxis, 
-            //         valueYField: "close", 
-            //         valueXField: "date",
-            //         tooltip: am5.Tooltip.new(root, {labelText: "{valueY}"})
-            //     }) 
-            // );
             candleSeries.data.processor = am5.DataProcessor.new(root, {
                 dateFields: ["date"],
                 dateFormat: "yyyy-MM-dd"
@@ -227,11 +221,11 @@
             // chart.set("scrollbarX", am5.Scrollbar.new(root, {
             //     orientation: "horizontal"
             // }));
-            chart.set("cursor", am5xy.XYCursor.new(root, {}));
+            mainPanel.set("cursor", am5xy.XYCursor.new(root, {}));
 
             // Make stuff animate on load
             candleSeries.appear(1000);
-            chart.appear(1000, 100);
+            mainPanel.appear(1000, 100);
         });
     </script>
     <a href="{% url 'stock_list' %}">Back to stock list</a>
