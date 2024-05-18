@@ -1,12 +1,18 @@
 from django.shortcuts import render
-from django.db.models import Max
+from django.db.models import Max, F
 from .models import Stock
 import json
 def stock_list(request):
-    latest_stocks = Stock.objects.values('symbol').annotate(latest_date=Max('date'))
-    stocks = [Stock.objects.get(symbol=stock['symbol'], date=stock['latest_date']) for stock in latest_stocks]
-    
-    return render(request, 'stocks/stock_list.html', {'stocks': stocks})
+    latest_stocks = Stock.objects.values('symbol').annotate(latest_date=Max('date'),close_price=Max('close_price'))
+    stocks = [{
+        'symbol': entry['symbol'],
+        'date': entry['latest_date'].strftime('%Y-%m-%d'),
+        'close': float(entry['close_price']),
+    } for entry in latest_stocks]
+
+    top_stocks = sorted(stocks, key=lambda x: x['close'], reverse=True)[:5]
+
+    return render(request, 'stocks/stock_list.html', {'stocks': stocks,'top_stocks':top_stocks})
 
 def stock_history(request, symbol):
     stock_history = Stock.objects.filter(symbol=symbol).order_by('-date')

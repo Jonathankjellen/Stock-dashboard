@@ -61,6 +61,7 @@
 </head>
 <body>
     <h1>Stock History for {{ symbol }}</h1>
+    <div id="chartcontrols"></div>
     <div id="chartdiv" style="width: 80%; height: 500px;"></div>
     <script id="stock-data" type="application/json">
         {{ stock_history|safe }}
@@ -303,12 +304,12 @@
             // Add series
             // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
             var volumeSeries = volumePanel.series.push(am5xy.ColumnSeries.new(root, {
-            name: "{{ticker}}",
-            valueXField: "date",
-            valueYField: "volume",
-            xAxis: volumeDateAxis,
-            yAxis: volumeValueAxis,
-            legendValueText: "{valueY.formatNumber('#,###')}"
+                name: "{{ticker}}",
+                valueXField: "date",
+                valueYField: "volume",
+                xAxis: volumeDateAxis,
+                yAxis: volumeValueAxis,
+                legendValueText: "{valueY.formatNumber('#,###')}"
             }));
 
 
@@ -316,11 +317,11 @@
 
             // color columns by stock rules
             volumeSeries.columns.template.adapters.add("fill", function(fill, target) {
-            var dataItem = target.dataItem;
-            if (dataItem) {
-                return stockChart.getVolumeColor(dataItem);
-            }
-            return fill;
+                var dataItem = target.dataItem;
+                if (dataItem) {
+                    return stockChart.getVolumeColor(dataItem);
+                }
+                return fill;
             })
             
             var volumeCursor = volumePanel.set("cursor", am5xy.XYCursor.new(root, {
@@ -348,7 +349,48 @@
             // Make stuff animate on load
             candleSeries.appear(1000);
             mainPanel.appear(1000, 100);
+
+            var comparisonControl = am5stock.ComparisonControl.new(root, {
+                stockChart: stockChart,
+                searchable: true,
+                items: [
+                    { label: "Apple", subLabel: "AAPL", id: "AAPL" },
+                    { label: "Tesla", subLabel: "TSLA", id: "TSLA" },
+                ]
+            });
+
+            comparisonControl.events.on("selected", function(ev) {
+            var item = ev.item;
+            var series = am5xy.LineSeries.new(root, {
+                name: item.subLabel,
+                valueYField: "close",
+                calculateAggregates: true,
+                valueXField: "date",
+                xAxis: dateAxis,
+                yAxis: valueAxis,
+                legendValueText: "{valueY.formatNumber('#.00')}"
+            });
+            var comparingSeries = stockChart.addComparingSeries(series);
+                loadData(item.subLabel, [comparingSeries]);
+            });
+
+            // Add toolbar
+            // https://www.amcharts.com/docs/v5/charts/stock/toolbar/
+            const toolbar = am5stock.StockToolbar.new(root, {
+                container: document.getElementById("chartcontrols"),
+                stockChart: stockChart,
+                controls: [
+                    comparisonControl,
+                    am5stock.ResetControl.new(root, {
+                        stockChart: stockChart
+                    }),
+                    am5stock.SettingsControl.new(root, {
+                        stockChart: stockChart
+                    })
+                ]
+            })
         });
+        
     </script>
     <a href="{% url 'stock_list' %}">Back to stock list</a>
 </body>
