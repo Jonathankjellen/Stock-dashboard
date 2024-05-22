@@ -87,8 +87,6 @@
                 close: entry.close,
                 volume: entry.volume
             }));
-            // Reverse the data since it needs to be ascending or else weird behavior with zoom
-            stockData.reverse()
             console.log("Processed stockData:", stockData);
 
             var root = am5.Root.new("chartdiv");

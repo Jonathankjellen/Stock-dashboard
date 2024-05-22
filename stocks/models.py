@@ -16,4 +16,7 @@ class Stock(models.Model):
 
     class Meta:
         app_label = 'stocks'
-
+        unique_together = ('symbol', 'date')
+        indexes = [
+            models.Index(fields=['symbol', 'date']),
+        ]

@@ -65,6 +65,13 @@ A Django-based web application for stock analysis and prediction. This dashboard
     ```sh
     python manage.py migrate
     ```
+    
+### To fetch stock data
+
+1. Run the management command:
+    ```sh
+    python manage.py populate_stock_data
+    ```
 
 # Acknowledgements
 

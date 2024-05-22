@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.db.models import Max, F
 from .models import Stock
 import json
+from datetime import datetime,timedelta
 def stock_list(request):
     latest_stocks = Stock.objects.values('symbol').annotate(latest_date=Max('date'),close_price=Max('close_price'))
     stocks = [{
@@ -15,7 +16,11 @@ def stock_list(request):
     return render(request, 'stocks/stock_list.html', {'stocks': stocks,'top_stocks':top_stocks})
 
 def stock_history(request, symbol):
-    stock_history = Stock.objects.filter(symbol=symbol).order_by('-date')
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=5*365)
+    stock_history = Stock.objects.filter(symbol=symbol, date__range=(start_date, end_date)).order_by('date')
+
+    # stock_history = Stock.objects.filter(symbol=symbol).order_by('-date')
     stock_data = [{
         'date': entry.date.strftime('%Y-%m-%d'),
         'open': float(entry.open_price),
