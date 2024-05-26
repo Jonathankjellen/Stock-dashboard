@@ -35,8 +35,13 @@ A Django-based web application for stock analysis and prediction. This dashboard
     ```sh
     pip install -r requirements.txt
     ```
+4. Set environment variable:
+    ```sh
+    python generate_secretkey.py
+    set DJANGO_SECRET_KEY={previous_output}
+    ```
 
-4. Configure your database settings in `stock_dashboard/settings.py`.
+5. Configure your database settings in `stock_dashboard/settings.py`.
 
 ## Usage
 
