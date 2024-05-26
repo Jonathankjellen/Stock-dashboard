@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = 'Populate stock data'
 
     def handle(self, *args, **kwargs):
-        stock_symbols = ['AAPL', 'GOOGL', 'MSFT','ABB.ST','ERICb.ST','INVEb.ST','TELIA.ST','EVO.ST','ERIC-B.ST']  # Add your desired stock symbols here
+        stock_symbols = ['AAPL', 'GOOGL', 'MSFT','ABB.ST','INVE-B.ST','TELIA.ST','EVO.ST','ERIC-B.ST']  # Add your desired stock symbols here
         today = datetime.now().date()
         end_date = today - timedelta(days=1)
 
